@@ -1,0 +1,114 @@
+
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(init);
+    //宣告js物件類別
+    function Car() {
+        //點擊次數
+        this.clickcount = 0;
+    }
+    function init() {
+
+        //新增數字
+        $("input#addCount").click(function () {
+            //此瀏覽器支援Web Storage
+            if (typeof (Storage) !== "undefined") {
+                //注意Key有區分大小寫
+                if (localStorage.MyObj) {//如果localStorage.MyObj這個key裡有值的話
+                    //把json字串轉型成json物件
+                    var objCar = JSON.parse(localStorage.MyObj);//抓出json物件
+                    //assign value
+                    objCar.clickcount = Number(objCar.clickcount) + 1;//轉型成數字※Number()同時支援parseInt()和parseFloat()
+                    localStorage.MyObj = JSON.stringify(objCar);//重新把car物件序列化json字串 丟給 localStorage.MyObj
+                } else {//localStorage.MyObj 無值的話
+
+                    var objCar = new Car();//new 一個物件
+                    objCar.clickcount = 1;//給預設1
+                    //localStorage只能儲存字串，如果想存js物件的話，就要把該js物件序列化成json字串存進去
+                    localStorage.MyObj = JSON.stringify(objCar);//序列化成json字串
+
+                }
+                //顯示結果↓
+                var result = "";
+                if ((typeof (localStorage.MyObj) == "undefined")) {
+                    result = 0;
+                } else {
+                    //轉型成json物件
+                    var objCar = JSON.parse(localStorage.MyObj);
+                    result = objCar.clickcount;
+                }
+                $("div#result").html("目前localStorage的值為 " + result);
+
+            } else {
+
+                alert("此瀏覽器不支援Web Storage");
+            }
+
+        });//end click 註冊事件
+
+
+        $("input#removeOne").click(function () {
+
+            //此瀏覽器支援Web Storage
+            if (typeof (Storage) !== "undefined") {
+                //注意Key有區分大小寫
+                localStorage.removeItem("MyObj");
+
+                if (typeof (localStorage.MyObj) == "undefined") {
+                    $("div#result").html("目前localStorage的值為 " + 0);
+                }
+
+
+            } else {
+                alert("此瀏覽器不支援Web Storage");
+            }
+
+        });//end click 註冊事件
+
+
+
+
+        $("input#clearAll").click(function () {
+
+            //此瀏覽器支援Web Storage
+            if (typeof (Storage) !== "undefined") {
+
+                localStorage.clear();//清除此網站所有localStorage
+                if (typeof (localStorage.MyObj) == "undefined") {
+                    $("div#result").html("目前localStorage的值為 " + 0);
+                }
+
+
+            } else {
+
+                alert("此瀏覽器不支援Web Storage");
+            }
+
+        });//end click 註冊事件
+
+
+
+
+    }//end init
+
+
+
+
+</script>
+
+<input type="button" value="加1"  id="addCount"/>
+<br />
+ 
+<input type="button" value="remove單個localStorage"  id="removeOne"/>
+<br />
+ 
+<input type="button" value="清除所有localStorage"  id="clearAll"/>
+<br />
+ 
+<!--呈現結果↓-->
+<div id="result">
+
+   
+
+
+</div> 
