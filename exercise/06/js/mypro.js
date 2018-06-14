@@ -111,7 +111,6 @@ var dtable = {
   }
 
   function intToStr(num, size, radix) { //轉成字串 num＝數字 size＝長度 radix=進位
-    // c.log(" num="+num);
     var s = num.toString(radix)+"";
     while (s.length < size) s = "0" + s; // 若字串長度小於size，自動補0
     return s;

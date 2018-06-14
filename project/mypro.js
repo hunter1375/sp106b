@@ -102,7 +102,7 @@ var dtable = {
                                                                               //RegExp:$2 :(([AMD]*)=)? 比對有無＝號
                                                                               //RegExp:$3 :([AMD]*) 比對AMD １次或多次 =dtable
                                                                               //RegExp:$4 :([AMD01\+\-\&\|\!]*) 比對=號後的內容 = ctable
-                                                                              //RegExp:$5 :(\w*) 比對跳躍符號內容 = jtable
+                                                                              //RegExp:$5 :(\w*) 比對跳躍符號後的內容 = jtable
                                                                               //RegExp:$6 :(;(\w*)) 比對有無;跳躍符號
       return { type:"C", c:RegExp.$4, d:RegExp.$3, j:RegExp.$6 } // 回傳指令是C, 將經過正規表達式比對的變數放入相應的表格
     } else {
@@ -111,7 +111,6 @@ var dtable = {
   }
 
   function intToStr(num, size, radix) { //轉成字串 num＝數字 size＝長度 radix=進位
-    // c.log(" num="+num);
     var s = num.toString(radix)+"";
     while (s.length < size) s = "0" + s; // 若字串長度小於size，自動補0
     return s;
