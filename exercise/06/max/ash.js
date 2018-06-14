@@ -92,25 +92,33 @@ assemble(file+'.asm', file+'.hack');
 
 function assemble(asmFile, objFile) {
   var asmText = fs.readFileSync(asmFile, "utf8"); // 讀取檔案到 text 字串中
-  var lines   = asmText.split(/\r?\n/); // 將組合語言分割成一行一行
-  c.log(JSON.stringify(lines, null, 2));
+  var lines   = asmText.split(/\r?\n/); // 將組合語言分割成一行一行 .split()：分割split內的內容
+                                        // \r 比對 carriage return	
+                                        // \n 比對換行符號	
+  c.log(JSON.stringify(lines, null, 2)); 
   pass1(lines);
   pass2(lines, objFile);
 } 
 
 function parse(line, i) {
-  line.match(/^([^\/]*)(\/.*)?$/);
-  line = RegExp.$1.trim();
+  line.match(/^([^\/]*)(\/.*)?$/); // ^([^\/]*)比對//前的字串並存入RegExp.$1
+                                   // (\/.*)?$ 比對//後的字串並存入RegExp.$2
+  line = RegExp.$1.trim(); // trim省略空格
   if (line.length===0)
-    return null;
-  if (line.startsWith("@")) {
-    return { type:"A", arg:line.substring(1).trim() }
-  } else if (line.match(/^\(([^\)]+)\)$/)) { // [^\)] 不能用\w 考慮到.$
-    return { type:"S", symbol:RegExp.$1 }
-  } else if (line.match(/^((([AMD]*)=)?([AMD01\+\-\&\|\!]*))(;(\w*))?$/)) {
-    return { type:"C", c:RegExp.$4, d:RegExp.$3, j:RegExp.$6 }
+    return null;   
+  if (line.startsWith("@")) { // 對比開頭為＠的字串
+    return { type:"A", arg:line.substring(1).trim() } //回傳type:A 回傳字串
+  } else if (line.match(/^\(([^\)]+)\)$/)) { // 對比開頭結尾為()的字串 [^\)] 不能用\w 因考慮到可能會有.$等特殊字元
+    return { type:"S", symbol:RegExp.$1 } //回傳type:S 回傳字串
+  } else if (line.match(/^((([AMD]*)=)?([AMD01\+\-\&\|\!]*))(;(\w*))?$/)) { //RegExp:$1 :((([AMD]*)=)?([AMD01\+\-\&\|\!]*)) 
+                                                                            //RegExp:$2 :(([AMD]*)=)? 比對有無＝號
+                                                                            //RegExp:$3 :([AMD]*) 比對AMD １次或多次 =dtable
+                                                                            //RegExp:$4 :([AMD01\+\-\&\|\!]*) 比對=號後的內容 = ctable
+                                                                            //RegExp:$5 :(\w*) 比對跳躍符號內容 = jtable
+                                                                            //RegExp:$6 :(;(\w*)) 比對有無;跳躍符號
+    return { type:"C", c:RegExp.$4, d:RegExp.$3, j:RegExp.$6 } // 回傳指令是C, 將經過正規表達式比對的變數放入相應的表格
   } else {
-    throw "Error: line "+(i+1);
+    throw "Error: line "+(i+1); //回傳錯誤 +下一行
   }
 }
 
@@ -119,13 +127,13 @@ function pass1(lines) {
   var address = 0;
   for (var i=0; i<lines.length; i++) {
     var p = parse(lines[i], i);
-    if (p===null) continue;
+    if (p===null) continue; //如果字串不是ASC這三種類型就跳過=i+1
     if (p.type === "S") {
       c.log(" symbol: %s %s", p.symbol, intToStr(address, 4, 10));
       symTable[p.symbol] = address;
       continue;
     } else {
-      c.log(" p: %j", p);
+      c.log(" p: %j", p); //
     }
     c.log("%s:%s %s", intToStr(i+1, 3, 10), intToStr(address, 4, 10),  lines[i]);
     address++;
@@ -134,7 +142,7 @@ function pass1(lines) {
 
 function pass2(lines, objFile) {
   c.log("============== pass2 ================");
-  var ws = fs.createWriteStream(objFile);
+  var ws = fs.createWriteStream(objFile); // 將目標檔寫進字串
   ws.once('open', function(fd) {
     var address = 0;
     for (var i=0; i<lines.length; i++) {
@@ -149,23 +157,23 @@ function pass2(lines, objFile) {
   });
 }
 
-function intToStr(num, size, radix) {
-//  c.log(" num="+num);
+function intToStr(num, size, radix) { //轉成字串 num＝數字 size＝長度 radix=進位
+  // c.log(" num="+num);
   var s = num.toString(radix)+"";
-  while (s.length < size) s = "0" + s;
+  while (s.length < size) s = "0" + s; // 若字串長度小於size，自動補0
   return s;
 }
 
 function toCode(p) {
   var address; 
-  if (p.type === "A") {
-    if (p.arg.match(/^\d+$/)) {
-      address = parseInt(p.arg);
-    } else {
-      address = symTable[p.arg]; 
-      if (typeof address === 'undefined') {
-        address = symTop;
-        addSymbol(p.arg, address);        
+  if (p.type === "A") {  // 如果為A指令
+    if (p.arg.match(/^\d+$/)) { // 比對有無數字
+      address = parseInt(p.arg); // 轉換成整數
+    } else { //否則
+      address = symTable[p.arg]; // 從符號表裡面找到對應的放進去
+      if (typeof address === 'undefined') { // 如果符號表裡沒有
+        address = symTop; // 設成新的符號
+        addSymbol(p.arg, address); // 紀錄該指令位置
       }
     }
     return address; 
