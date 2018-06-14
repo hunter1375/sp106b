@@ -116,7 +116,7 @@ function parse(line, i) {
                                                                             //RegExp:$4 :([AMD01\+\-\&\|\!]*) 比對=號後的內容 = ctable
                                                                             //RegExp:$5 :(\w*) 比對跳躍符號內容 = jtable
                                                                             //RegExp:$6 :(;(\w*)) 比對有無;跳躍符號
-    return { type:"C", c:RegExp.$4, d:RegExp.$3, j:RegExp.$6 } // 回傳type:"C", ctable, dtable, jtable
+    return { type:"C", c:RegExp.$4, d:RegExp.$3, j:RegExp.$6 } // 回傳指令是C, 將經過正規表達式比對的變數放入相應的表格
   } else {
     throw "Error: line "+(i+1); //回傳錯誤 +下一行
   }
@@ -166,14 +166,14 @@ function intToStr(num, size, radix) { //轉成字串 num＝數字 size＝長度 
 
 function toCode(p) {
   var address; 
-  if (p.type === "A") {
-    if (p.arg.match(/^\d+$/)) {
-      address = parseInt(p.arg);
-    } else {
-      address = symTable[p.arg]; 
-      if (typeof address === 'undefined') {
-        address = symTop;
-        addSymbol(p.arg, address);
+  if (p.type === "A") {  // 如果為A指令
+    if (p.arg.match(/^\d+$/)) { // 比對有無數字
+      address = parseInt(p.arg); // 轉換成整數
+    } else { //否則
+      address = symTable[p.arg]; // 從符號表裡面找到對應的放進去
+      if (typeof address === 'undefined') { // 如果符號表裡沒有
+        address = symTop; // 設成新的符號
+        addSymbol(p.arg, address); // 紀錄該指令位置
       }
     }
     return address; 
