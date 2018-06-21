@@ -149,6 +149,5 @@ var address = 0;
       if (p===null || p.type === "S") continue;
       var code = toCode(p);
       c.log("%s:%s %s", intToStr(i+1, 3, 10), intToStr(code, 16, 2),  lines[i]);
-      //ws.write(intToStr(code, 16, 2)+"\n");
       address++;
     }
