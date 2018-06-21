@@ -81,9 +81,9 @@ var dtable = {
     "SCREEN":16384
   };
 
-  var symTop = 16;
+  var symTop = 16; 
 
-  function addSymbol(symbol) {
+  function addSymbol(symbol) { //追加新符號
     symTable[symbol] = symTop;
     symTop ++;
   }
@@ -142,12 +142,30 @@ var lines = data.split(/\r?\n/); // 將組合語言一行一行分割
 for (var i=0;i<lines.length;i++){
     c.log("%s:%s", i, lines[i]); // 一行一行顯示在螢幕上＋行號
 }
-c.log("================分割線=================");
-var address = 0;
-    for (var i=0; i<lines.length; i++) {
-      var p = parse(lines[i], i);
-      if (p===null || p.type === "S") continue;
-      var code = toCode(p);
-      c.log("%s:%s %s", intToStr(i+1, 3, 10), intToStr(code, 16, 2),  lines[i]);
-      address++;
+pass1(lines);
+pass2(lines);
+
+function pass1(lines){
+  var address = 0;
+  for (var i=0; i<lines.length; i++) {
+    var p = parse(lines[i], i);
+    if (p===null) continue; //如果字串不是ASC這三種類型就跳過=i+1
+    if (p.type === "S") {
+      symTable[p.symbol] = address;
+      continue;
     }
+    address++;
+}
+}
+function pass2(lines) {
+  c.log("============== 分隔線 ================");
+  var address = 0;
+  for (var i=0; i<lines.length; i++) {
+    var p = parse(lines[i], i);
+    if (p===null || p.type === "S") continue;
+    else 
+    var code = toCode(p);
+    c.log("%s:%s %s", intToStr(i+1, 3, 10), intToStr(code, 16, 2),  lines[i]);
+    address++;
+  }
+}
